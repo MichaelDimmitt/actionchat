@@ -1,6 +1,7 @@
 class RoomsController < ApplicationController
   before_action :set_room, only: [:show, :edit, :update, :destroy]
-  before_action :room_change, only: :show
+  before_filter :room_change, only: :show
+  after_action :room_change, only: :new
   before_action :authenticate_user!
   # GET /rooms
   # GET /rooms.json
@@ -19,6 +20,8 @@ class RoomsController < ApplicationController
 
   # GET /rooms/new
   def new
+    RoomChannel.broadcast_to current_user.room_id, remove: true, user_id: current_user.id
+    current_user.leave_room
     @room = Room.new
   end
 
@@ -31,9 +34,9 @@ class RoomsController < ApplicationController
   def create
     @room = Room.new(room_params)
     respond_to do |format|
-      if @room.save 
-        Room.all.each do |room|
-          RoomChannel.broadcast_to room.id, addroom: true, message: RoomsController.render(partial: 'rooms/room', locals: {room: @room})
+      if @room.save
+        Room.all.each do |x|
+          RoomChannel.broadcast_to x.id, addroom: true, message: RoomsController.render(partial: 'rooms/room', locals: {room: @room})
         end
         format.html { redirect_to @room, notice: 'Room was successfully created.' }
         format.json { render :show, status: :created, location: @room }

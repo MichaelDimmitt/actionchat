@@ -1,7 +1,12 @@
 class RoomChannel < ApplicationCable::Channel
   def subscribed
     # stream_from "some_channel"
-    listen("room_id" => current_user.room_id)
+    if current_user.room_id == nil
+      listen("room_id" => Room.last.id)
+      current_user.change_room(Room.last)
+    else
+      listen("room_id" => current_user.room_id)
+    end
   end
 
   def unsubscribed
