@@ -2,7 +2,7 @@ class RoomChannel < ApplicationCable::Channel
   def subscribed
     # stream_from "some_channel"
     stop_all_streams
-    stream_for 1
+    stream_for Room.first.id
   end
 
   def unsubscribed
