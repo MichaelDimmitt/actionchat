@@ -14,6 +14,7 @@ class RoomsController < ApplicationController
     @rooms = Room.all
     @messages = @room.messages.order("created_at ASC")
     @users = User.where(room_id: @room.id)
+    @current_user = current_user
   end
 
   # GET /rooms/new
@@ -29,9 +30,11 @@ class RoomsController < ApplicationController
   # POST /rooms.json
   def create
     @room = Room.new(room_params)
-
     respond_to do |format|
-      if @room.save
+      if @room.save 
+        Room.all.each do |room|
+          RoomChannel.broadcast_to room.id, addroom: true, message: RoomsController.render(partial: 'rooms/room', locals: {room: @room})
+        end
         format.html { redirect_to @room, notice: 'Room was successfully created.' }
         format.json { render :show, status: :created, location: @room }
       else

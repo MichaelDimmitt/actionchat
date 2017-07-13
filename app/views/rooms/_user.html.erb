@@ -1,1 +1,5 @@
-<li id = "user-<%= user.id %>" ><%= user.name %></li>
+<% if user == @current_user %>
+  <li id = "user-<%= user.id %>" ><strong><%= user.name %></strong></li>
+<% else %>
+  <li id = "user-<%= user.id %>" ><%= user.name %></li>
+<% end %>
