@@ -1,6 +1,7 @@
 class RoomChannel < ApplicationCable::Channel
   def subscribed
     # stream_from "some_channel"
+    # New logic handles the creating of a new room. Originally users werent being subscribed so this brute forces that to happen.
     if current_user.room_id == nil
       listen("room_id" => Room.last.id)
       current_user.change_room(Room.last)
