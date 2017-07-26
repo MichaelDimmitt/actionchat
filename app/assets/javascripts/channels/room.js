@@ -26,7 +26,6 @@ App.room = App.cable.subscriptions.create("RoomChannel", {
   },
 
   listen_to_messages: function() {
-    debugger
     return this.perform('listen', {
       room_id: $("[data-room-id]").data("room-id")
     });
@@ -35,8 +34,13 @@ App.room = App.cable.subscriptions.create("RoomChannel", {
 
 $(document).on('turbolinks:load', function() {
   App.room.listen_to_messages();
-  var height = document.getElementById("list-of-messages").scrollHeight;
-    $(".message-list").scrollTop(height)
+  var elementExists = document.getElementById("find-me");
+  if (elementExists != null) {
+    var height = document.getElementById("list-of-messages").scrollHeight; 
+    $(".message-list").scrollTop(height);
+  }
+  $(".notice").delay(3200).fadeOut(300);
+  $(".alert").delay(3200).fadeOut(300);
 });
 
 
