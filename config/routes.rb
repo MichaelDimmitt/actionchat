@@ -5,8 +5,10 @@ Rails.application.routes.draw do
       resources :messages
     end
   end
-  resources :users
+  resources :users, :only => [:index, :show, :create, :new, :edit] 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   root to: 'rooms#show', id: 1
   mount ActionCable.server => '/cable'
+  post '/rooms/create', to: 'rooms#create'
+
 end

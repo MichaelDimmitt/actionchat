@@ -32,17 +32,37 @@ class RoomsController < ApplicationController
   # POST /rooms
   # POST /rooms.json
   def create
-    @room = Room.new(room_params)
-    respond_to do |format|
-      if @room.save
-        Room.all.each do |x|
-          RoomChannel.broadcast_to x.id, addroom: true, message: RoomsController.render(partial: 'rooms/room', locals: {room: @room})
+    if (!params[:is_private])
+      @room = Room.new(room_params)
+      respond_to do |format|
+        if @room.save
+          Room.all.each do |x|
+            RoomChannel.broadcast_to x.id, addroom: true, message: RoomsController.render(partial: 'rooms/room', locals: {room: @room})
+          end
+          format.html { redirect_to @room, notice: 'Room was successfully created.' }
+          format.json { render :show, status: :created, location: @room }
+        else
+          format.html { render :new }
+          format.json { render json: @room.errors, status: :unprocessable_entity }
         end
-        format.html { redirect_to @room, notice: 'Room was successfully created.' }
-        format.json { render :show, status: :created, location: @room }
-      else
-        format.html { render :new }
-        format.json { render json: @room.errors, status: :unprocessable_entity }
+      end
+    else
+      @room = Room.new(room_params)
+      @room.name = "private room"
+      @room.is_private = true
+      @room.user1 = params[:user1]
+      @room.user2 = params[:user2]
+      respond_to do |format|
+        if @room.save
+          Room.all.each do |x|
+            RoomChannel.broadcast_to x.id, addprivateroom: true, message: RoomsController.render(partial: 'rooms/room', locals: {room: @room})
+          end
+          format.html { redirect_to @room, notice: 'Private message between #{params[:user1]} and #{params[:user2]}' }
+          format.json { render :show, status: :created, location: @room }
+        else
+          format.html { render :new }
+          format.json { render json: @room.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -87,7 +107,7 @@ class RoomsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def room_params
-      params.require(:room).permit(:name)
+      params.require(:room).permit(:name, :user1, :user2, :is_private)
     end
 
     def room_change

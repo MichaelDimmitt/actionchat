@@ -1,5 +1,5 @@
 <% if user == @current_user %>
   <li id = "user-<%= user.id %>" ><strong><%= user.name %></strong></li>
 <% else %>
-  <li id = "user-<%= user.id %>" ><%= user.name %></li>
+  <li id = "user-<%= user.id %>" ><%= link_to user.name, new_room_path %></li>
 <% end %>
