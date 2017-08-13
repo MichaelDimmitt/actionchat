@@ -4,6 +4,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
   has_many :messages
+  validates :name, uniqueness: true
   def change_room(room)
     update_attributes(room_id: room.id)
   end
